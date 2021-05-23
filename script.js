@@ -5,10 +5,11 @@ let inpNewTask = $('#inpNewTask')
 let btnCleanup=$('#btnCleanup')
 let btnSort=$('#btnSort')
 
-var string=localStorage.getItem("Tasks");//string
-if(string!=null && string.length>0){
-    console.log("functionrunnin")
-    arr=[string]//array
+var arr = JSON.parse(localStorage.getItem("Tasks"));//string
+if(arr!=null && arr.length>0){
+    // console.log("functionrunnin")
+    // console.log(arr)
+    // console.log(string)
     arr.map(task=>{
         
         let listItem = $('<li>', {
@@ -18,6 +19,9 @@ if(string!=null && string.length>0){
           ulTasks.append(listItem)
           inpNewTask.val('')
           toggleInputButtons()
+          listItem.click(()=>{
+            listItem.toggleClass('done');//will toggle between done and not done
+        })
 
     })
 }
@@ -27,20 +31,16 @@ function addItem(){
 
    var arr=[]
   
-    var list=localStorage.getItem("Tasks");
-
-     if(list!=null){
-       arr=[list]
-       console.log(arr)
-       console.log(list)
-     }
+    var list=JSON.parse(localStorage.getItem("Tasks"));
   
     let listItem = $('<li>', {
         'class': 'list-group-item',
         text: inpNewTask.val()
       })
 
-     localStorage.setItem("Tasks",[...arr,inpNewTask.val()])
+    arr = list!=null ? [...list,inpNewTask.val()] : [inpNewTask.val()]
+
+     localStorage.setItem("Tasks",JSON.stringify(arr))
     
       listItem.click(()=>{
           listItem.toggleClass('done');//will toggle between done and not done
@@ -51,8 +51,20 @@ function addItem(){
       toggleInputButtons()
 }
 function clearDone(){
-    
+    // localStorage.removeItem("Tasks")
     $('#ulTasks .done').remove();
+    var el = document.getElementsByTagName("li")
+    if(el){
+        var arr =[];
+        for (item of el) {
+            arr.push(item.innerText)
+          }
+        localStorage.setItem("Tasks",JSON.stringify(arr))
+    }
+    else{
+        localStorage.removeItem("Tasks")
+    }
+    
     toggleInputButtons()
 }
 //take done and append them at bottom
@@ -61,7 +73,7 @@ function sortTasks(){
 }
 function toggleInputButtons(){
     btnReset.prop('disabled',inpNewTask.val()=='')
-    btnAdd.prop('disabled',inpNewTask.val()=='')
+    btnAdd.prop('disabled',inpNewTask.val().trim()=='')
     btnSort.prop('disabled',ulTasks.children().length<2)
     btnCleanup.prop('disabled',ulTasks.children().length<1)
 
